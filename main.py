@@ -27,6 +27,28 @@ def btn1_1_clicked(self):
 def btn2_1_clicked(self):
     print("btn2_1")
 
+    backSub = cv2.createBackgroundSubtractorMOG2() #generate the foreground mask
+    capture = cv2.VideoCapture(cv2.samples.findFileOrKeep('bgSub.mp4'))
+    if not capture.isOpened:
+        print('Unable to open: bgSub.mp4')
+        exit(0)
+    while True:
+        ret, frame = capture.read()
+        if frame is None:
+            break
+    
+        fgMask = backSub.apply(frame)
+        
+        cv2.rectangle(frame, (10, 2), (100,20), (255,255,255), -1)
+        cv2.putText(frame, str(capture.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5 , (0,0,0))
+        
+        cv2.imshow('Frame', frame)
+        cv2.imshow('FG Mask', fgMask)
+        
+        keyboard = cv2.waitKey(30)
+        if keyboard == 'q' or keyboard == 27:
+            break
+
 def btn3_1_clicked(self):
     print("btn3_1")
 
