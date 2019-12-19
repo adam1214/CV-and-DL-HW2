@@ -7,6 +7,34 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+import cv2
+import numpy as np
+from matplotlib import pyplot as plt
+
+def btn1_1_clicked(self):
+    print("btn1_1")
+    imgL = cv2.imread('imL.png',cv2.IMREAD_GRAYSCALE)
+    imgR = cv2.imread('imR.png',cv2.IMREAD_GRAYSCALE)
+    stereo = cv2.StereoBM.create(numDisparities=64, blockSize=9)
+    disparity = stereo.compute(imgL,imgR)
+    plt.imshow(disparity, 'gray')
+    plt.show()
+
+
+def btn2_1_clicked(self):
+    print("btn2_1")
+
+def btn3_1_clicked(self):
+    print("btn3_1")
+
+def btn3_2_clicked(self):
+    print("btn3_2")
+
+def btn4_1_clicked(self):
+    print("btn4_1")
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -82,6 +110,12 @@ class Ui_MainWindow(object):
         self.btn3_2.setText(_translate("MainWindow", "3.2 Video Tracking"))
         self.groupBox_4.setTitle(_translate("MainWindow", "4. Augmented Reality"))
         self.btn4_1.setText(_translate("MainWindow", "4.1 Augmented Reality"))
+        
+        self.btn1_1.clicked.connect(btn1_1_clicked)
+        self.btn2_1.clicked.connect(btn2_1_clicked)
+        self.btn3_1.clicked.connect(btn3_1_clicked)
+        self.btn3_2.clicked.connect(btn3_2_clicked)
+        self.btn4_1.clicked.connect(btn4_1_clicked)
 
 
 if __name__ == "__main__":
