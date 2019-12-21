@@ -27,22 +27,26 @@ def btn1_1_clicked(self):
 def btn2_1_clicked(self):
     print("btn2_1")
 
-    backSub = cv2.createBackgroundSubtractorMOG2() #generate the foreground mask
-    capture = cv2.VideoCapture(cv2.samples.findFileOrKeep('bgSub.mp4'))
+    backSub = cv2.createBackgroundSubtractorMOG2(history=50, varThreshold=200, detectShadows=True) #generate the foreground mask
+    capture = cv2.VideoCapture(cv2.samples.findFileOrKeep('bgSub.mp4')) #read the input video
     if not capture.isOpened:
         print('Unable to open: bgSub.mp4')
         exit(0)
+
     while True:
         ret, frame = capture.read()
+
         if frame is None:
             break
-    
-        fgMask = backSub.apply(frame)
-        
+
+        fgMask = backSub.apply(frame) #update the background model
+
+        #get the frame number and write it on the current frame
         cv2.rectangle(frame, (10, 2), (100,20), (255,255,255), -1)
         cv2.putText(frame, str(capture.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5 , (0,0,0))
         
-        cv2.imshow('Frame', frame)
+        #show the current frame and the fg masks
+        cv2.imshow('Frame', frame) #original video
         cv2.imshow('FG Mask', fgMask)
         
         keyboard = cv2.waitKey(30)
