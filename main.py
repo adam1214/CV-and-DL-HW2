@@ -53,9 +53,25 @@ def btn2_1_clicked(self):
         if keyboard == 'q' or keyboard == 27:
             break
 
+click_cnt = 0
+#capture video
+cap = cv2.VideoCapture('featureTracking.mp4')
+ret_gloabl, frame_global = cap.read()
+
+def draw_rectangle(event, x, y, flags, param): #mouse callback function
+    global click_cnt
+    if event == cv2.EVENT_LBUTTONDOWN and click_cnt < 7: #draw square at the center point
+        click_cnt = click_cnt + 1
+        cv2.rectangle(frame_global, (x-5,y-5), (x+5,y+5), (0,0,255), 2)
+        cv2.imshow('frame 1', frame_global)
+
+        
 def btn3_1_clicked(self):
     print("btn3_1")
-
+    cv2.namedWindow(winname='frame 1')
+    cv2.setMouseCallback('frame 1', draw_rectangle)
+    cv2.imshow('frame 1', frame_global)
+        
 def btn3_2_clicked(self):
     print("btn3_2")
 
