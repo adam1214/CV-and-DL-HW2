@@ -99,45 +99,80 @@ def btn3_1_clicked(self):
     cv2.setMouseCallback('frame 1', draw_rectangle)
     cv2.imshow('frame 1', frame_global)
     print("Please click 7 center points of 7 blue circles of this image.")
-        
+
 def btn3_2_clicked(self):
-    global pt1, pt2, pt3, pt4, pt5, pt6, pt7
+    global pt1, pt2, pt3, pt4, pt5, pt6, pt7, user_points
     print("btn3_2")
 
     if pt1==(0,0) or pt2==(0,0) or pt3==(0,0) or pt4==(0,0) or pt5==(0,0) or pt6==(0,0) or pt7==(0,0):
         pt1=(118, 72)
-        pt2=(111, 96)
-        pt3=(119, 116)
-        pt4=(137, 239)
-        pt5=(128, 257)
-        pt6=(173, 267)
-        pt7=(194, 259)
+        pt2=(111, 97)
+        pt3=(119, 168)
+        pt4=(137, 241)
+        pt5=(130, 261)
+        pt6=(177, 269)
+        pt7=(195, 258)
         print('You have not tracked 7 points, and program have tracked the default 7 points for you.')
 
-    capture = cv2.VideoCapture(cv2.samples.findFileOrKeep('featureTracking.mp4')) #read the input video
-    if not capture.isOpened:
-        print('Unable to open: featureTracking.mp4')
-        exit(0)
+    cap = cv2.VideoCapture("featureTracking.mp4")
+    # params for ShiTomasi corner detection
+    feature_params = dict( maxCorners = 100, qualityLevel = 0.3, minDistance = 7, blockSize = 7)
 
-    while True:
-        ret, frame = capture.read()
+    # Parameters for lucas kanade optical flow
+    lk_params = dict( winSize  = (15,15), maxLevel = 2, criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 
-        if frame is None:
-            break
+    # Create some random colors
+    color = np.random.randint(0,255,(100,3))
 
-        #get the frame number and write it on the current frame
-        cv2.rectangle(frame, (10, 2), (100,20), (255,255,255), -1)
-        cv2.putText(frame, str(capture.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5 , (0,0,0))
-
-        cv2.imshow('Frame', frame)
-        
-        keyboard = cv2.waitKey(30)
-        if keyboard == 'q' or keyboard == 27:
-            break
+    # Take first frame and find corners in it
+    ret, old_frame = cap.read()
+    old_gray = cv2.cvtColor(old_frame, cv2.COLOR_BGR2GRAY)
+    #p0 = cv2.goodFeaturesToTrack(old_gray, mask=None, **feature_params)
     
-    capture.release()
-    
+    pt1_arr = np.array(pt1,dtype=np.float32)
+    pt2_arr = np.array(pt2,dtype=np.float32)
+    pt3_arr = np.array(pt3,dtype=np.float32)
+    pt4_arr = np.array(pt4,dtype=np.float32)
+    pt5_arr = np.array(pt5,dtype=np.float32)
+    pt6_arr = np.array(pt6,dtype=np.float32)
+    pt7_arr = np.array(pt7,dtype=np.float32)
+    p0 = np.array([[pt1_arr],[pt2_arr],[pt3_arr],[pt4_arr],[pt5_arr],[pt6_arr],[pt7_arr]])
+    print(p0)
 
+    # Create a mask image for drawing purposes
+    mask = np.zeros_like(old_frame)
+
+    # set the mouse call back
+    cv2.namedWindow("frame")
+
+    # start the processing
+    while(1):
+        ret,frame = cap.read()
+        frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        # calculate optical flow
+        p1, st, err = cv2.calcOpticalFlowPyrLK(old_gray, frame_gray, p0, None, **lk_params)
+        # Select good points
+        good_new = p1[st==1]
+        good_old = p0[st==1]
+        # draw the tracks
+        for i,(new,old) in enumerate(zip(good_new,good_old)):
+            a,b = new.ravel()
+            c,d = old.ravel()
+            mask = cv2.line(mask, (a, b), (c, d), (0, 0, 255), 2)
+            #frame = cv2.circle(frame, (a, b), 5, (0, 0, 255), -1)
+            frame = cv2.rectangle(frame, (int(a-5), int(b-5)), (int(a+5), int(b+5)), (0, 0, 255), 2)
+        img = cv2.add(frame,mask)
+        cv2.imshow('frame',img)
+        k = cv2.waitKey(30) & 0xff
+
+        if k == 27:
+            break
+        # Now update the previous frame and previous points
+        old_gray = frame_gray.copy()
+        p0 = good_new.reshape(-1,1,2)
+    cv2.destroyAllWindows()
+    cap.release()
 
 def btn4_1_clicked(self):
     print("btn4_1")
