@@ -52,18 +52,45 @@ def btn2_1_clicked(self):
         keyboard = cv2.waitKey(30)
         if keyboard == 'q' or keyboard == 27:
             break
+    
+    capture.release()
 
 click_cnt = 0
 #capture video
 cap = cv2.VideoCapture('featureTracking.mp4')
 ret_gloabl, frame_global = cap.read()
+pt1 = (0,0)
+pt2 = (0,0)
+pt3 = (0,0)
+pt4 = (0,0)
+pt5 = (0,0)
+pt6 = (0,0)
+pt7 = (0,0)
 
 def draw_rectangle(event, x, y, flags, param): #mouse callback function
-    global click_cnt
+    global click_cnt, pt1, pt2, pt3, pt4, pt5, pt6, pt7, cap
     if event == cv2.EVENT_LBUTTONDOWN and click_cnt < 7: #draw square at the center point
+        if click_cnt == 0:
+            pt1 = (x,y)
+        elif click_cnt == 1:
+            pt2 = (x,y)
+        elif click_cnt == 2:
+            pt3 = (x,y)
+        elif click_cnt == 3:
+            pt4 = (x,y)
+        elif click_cnt == 4:
+            pt5 = (x,y)
+        elif click_cnt == 5:
+            pt6 = (x,y)
+        elif click_cnt == 6:
+            pt7 = (x,y)
+        
         click_cnt = click_cnt + 1
         cv2.rectangle(frame_global, (x-5,y-5), (x+5,y+5), (0,0,255), 2)
         cv2.imshow('frame 1', frame_global)
+
+    elif click_cnt == 7:
+        cap.release()
 
         
 def btn3_1_clicked(self):
@@ -71,9 +98,46 @@ def btn3_1_clicked(self):
     cv2.namedWindow(winname='frame 1')
     cv2.setMouseCallback('frame 1', draw_rectangle)
     cv2.imshow('frame 1', frame_global)
+    print("Please click 7 center points of 7 blue circles of this image.")
         
 def btn3_2_clicked(self):
+    global pt1, pt2, pt3, pt4, pt5, pt6, pt7
     print("btn3_2")
+
+    if pt1==(0,0) or pt2==(0,0) or pt3==(0,0) or pt4==(0,0) or pt5==(0,0) or pt6==(0,0) or pt7==(0,0):
+        pt1=(118, 72)
+        pt2=(111, 96)
+        pt3=(119, 116)
+        pt4=(137, 239)
+        pt5=(128, 257)
+        pt6=(173, 267)
+        pt7=(194, 259)
+        print('You have not tracked 7 points, and program have tracked the default 7 points for you.')
+
+    capture = cv2.VideoCapture(cv2.samples.findFileOrKeep('featureTracking.mp4')) #read the input video
+    if not capture.isOpened:
+        print('Unable to open: featureTracking.mp4')
+        exit(0)
+
+    while True:
+        ret, frame = capture.read()
+
+        if frame is None:
+            break
+
+        #get the frame number and write it on the current frame
+        cv2.rectangle(frame, (10, 2), (100,20), (255,255,255), -1)
+        cv2.putText(frame, str(capture.get(cv2.CAP_PROP_POS_FRAMES)), (15, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5 , (0,0,0))
+
+        cv2.imshow('Frame', frame)
+        
+        keyboard = cv2.waitKey(30)
+        if keyboard == 'q' or keyboard == 27:
+            break
+    
+    capture.release()
+    
+
 
 def btn4_1_clicked(self):
     print("btn4_1")
@@ -168,4 +232,3 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-
