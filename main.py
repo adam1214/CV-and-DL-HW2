@@ -137,17 +137,19 @@ def btn3_2_clicked(self):
     pt6_arr = np.array(pt6,dtype=np.float32)
     pt7_arr = np.array(pt7,dtype=np.float32)
     p0 = np.array([[pt1_arr],[pt2_arr],[pt3_arr],[pt4_arr],[pt5_arr],[pt6_arr],[pt7_arr]])
-    print(p0)
+    #print(p0)
 
     # Create a mask image for drawing purposes
     mask = np.zeros_like(old_frame)
 
-    # set the mouse call back
     cv2.namedWindow("frame")
 
     # start the processing
     while(1):
         ret,frame = cap.read()
+        if frame is None:
+            break
+
         frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # calculate optical flow
@@ -160,7 +162,6 @@ def btn3_2_clicked(self):
             a,b = new.ravel()
             c,d = old.ravel()
             mask = cv2.line(mask, (a, b), (c, d), (0, 0, 255), 2)
-            #frame = cv2.circle(frame, (a, b), 5, (0, 0, 255), -1)
             frame = cv2.rectangle(frame, (int(a-5), int(b-5)), (int(a+5), int(b+5)), (0, 0, 255), 2)
         img = cv2.add(frame,mask)
         cv2.imshow('frame',img)
