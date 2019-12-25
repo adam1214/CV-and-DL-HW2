@@ -13,6 +13,7 @@ from PyQt5.QtGui import *
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+import glob
 
 def btn1_1_clicked(self):
     print("btn1_1")
@@ -177,6 +178,46 @@ def btn3_2_clicked(self):
 
 def btn4_1_clicked(self):
     print("btn4_1")
+    #Intrinsic
+    camera_mtx = np.array([[ 2225.49585482,    0,               1025.5459589 ],
+                          [ 0,                2225.18414074,   1038.58518846],
+                          [ 0,                0,               1           ]])
+
+    #Distortion
+    distortion = np.array([[-0.12874225,   0.09057782,  -0.00099125,    0.00000278,  0.0022925]])
+
+    #1.bmp extrinsic
+    projection_1 = np.array([[ -0.97157425,   -0.01827487, 0.23602862,  6.81253889],
+                            [ 0.07148055,    -0.97312723, 0.2188925,   3.37330384],
+                            [ 0.22568565,    0.22954177,  0.94677165,  16.71572319]])
+
+    #2.bmp extrinsic
+    projection_2 = np.array([[-0.8884799,     -0.14530922,     -0.435303,       3.3925504],
+                            [0.07148066,     -0.98078915,     0.18150248,      4.36149229],
+                            [-0.45331444,    0.13014556,      0.88179825,      22.15957429]])
+
+    #3.bmp extrinsic
+    projection_3 = np.array([[-0.52390938,    0.22312793,      0.82202974,      2.68774801],
+                            [0.00530458,     -0.96420621,     0.26510046,      4.70990021],
+                            [0.85175749,     0.14324914,      0.50397308,      12.98147662]])
+
+    #4.bmp extrinsic
+    projection_4 = np.array([[-0.63108673,    0.53013053,      0.566296,        1.22781875],
+                            [0.13263301,     -0.64553994,     0.75212145,      3.48023006],
+                            [0.76428923,     0.54976341,      0.33707888,      10.9840538]])
+
+    #5.bmp extrinsic
+    projection_5 = np.array([[-0.87676843,    -0.23020567,     0.42223508,      4.43641198],
+                            [0.19708207,     -0.97286949,     -0.12117596,     0.67177428],
+                            [0.43867502,     -0.02302829,     0.89835067,      16.24069227]])
+
+    print(camera_mtx)
+    print(distortion)
+    print(projection_1)
+    print(projection_2)
+    print(projection_3)
+    print(projection_4)
+    print(projection_5)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
