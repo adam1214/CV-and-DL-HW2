@@ -187,69 +187,144 @@ def btn4_1_clicked(self):
     distortion = np.array([[-0.12874225,   0.09057782,  -0.00099125,    0.00000278,  0.0022925]])
 
     #1.bmp extrinsic
-    projection_1 = np.array([[ -0.97157425,   -0.01827487, 0.23602862,  6.81253889],
-                            [ 0.07148055,    -0.97312723, 0.2188925,   3.37330384],
-                            [ 0.22568565,    0.22954177,  0.94677165,  16.71572319]])
+    rvec_1 = np.array([     [ -0.97157425,   -0.01827487, 0.23602862],
+                            [ 0.07148055,    -0.97312723, 0.2188925],
+                            [ 0.22568565,    0.22954177,  0.94677165]])
+    tvec_1 = np.array([[6.81253889],
+                       [3.37330384],
+                       [16.71572319]])
 
     #2.bmp extrinsic
-    projection_2 = np.array([[-0.8884799,     -0.14530922,     -0.435303,       3.3925504],
-                            [0.07148066,     -0.98078915,     0.18150248,      4.36149229],
-                            [-0.45331444,    0.13014556,      0.88179825,      22.15957429]])
+    rvec_2 = np.array([     [-0.8884799,     -0.14530922,     -0.435303],
+                            [0.07148066,     -0.98078915,     0.18150248],
+                            [-0.45331444,    0.13014556,      0.88179825]])
+    tvec_2 = np.array([[3.3925504],
+                       [4.36149229],
+                       [22.15957429]])
 
     #3.bmp extrinsic
-    projection_3 = np.array([[-0.52390938,    0.22312793,      0.82202974,      2.68774801],
-                            [0.00530458,     -0.96420621,     0.26510046,      4.70990021],
-                            [0.85175749,     0.14324914,      0.50397308,      12.98147662]])
+    rvec_3 = np.array([     [-0.52390938,    0.22312793,      0.82202974],
+                            [0.00530458,     -0.96420621,     0.26510046],
+                            [0.85175749,     0.14324914,      0.50397308]])
+    tvec_3 = np.array([[2.68774801],
+                       [4.70990021],
+                       [12.98147662]])
 
     #4.bmp extrinsic
-    projection_4 = np.array([[-0.63108673,    0.53013053,      0.566296,        1.22781875],
-                            [0.13263301,     -0.64553994,     0.75212145,      3.48023006],
-                            [0.76428923,     0.54976341,      0.33707888,      10.9840538]])
+    rvec_4 = np.array([     [-0.63108673,    0.53013053,      0.566296],
+                            [0.13263301,     -0.64553994,     0.75212145],
+                            [0.76428923,     0.54976341,      0.33707888]])
+    tvec_4 = np.array([[1.22781875],
+                       [3.48023006],
+                       [10.9840538]])
 
     #5.bmp extrinsic
-    projection_5 = np.array([[-0.87676843,    -0.23020567,     0.42223508,      4.43641198],
-                            [0.19708207,     -0.97286949,     -0.12117596,     0.67177428],
-                            [0.43867502,     -0.02302829,     0.89835067,      16.24069227]])
-    '''
-    print(camera_mtx)
-    print(distortion)
-    print(projection_1)
-    print(projection_2)
-    print(projection_3)
-    print(projection_4)
-    print(projection_5)
-    '''
-    # 找棋盘格角点
-    # 阈值
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-    #棋盘格模板规格
-    w = 11
-    h = 8
-    # 世界坐标系中的棋盘格点,例如(0,0,0), (1,0,0), (2,0,0) ....,(8,5,0)，去掉Z坐标，记为二维矩阵
-    objp = np.zeros((w*h,3), np.float32)
-    objp[:,:2] = np.mgrid[0:w,0:h].T.reshape(-1,2)
-    # 储存棋盘格角点的世界坐标和图像坐标对
-    objpoints = [] # 在世界坐标系中的三维点
-    imgpoints = [] # 在图像平面的二维点
+    rvec_5 = np.array([     [-0.87676843,    -0.23020567,     0.42223508],
+                            [0.19708207,     -0.97286949,     -0.12117596],
+                            [0.43867502,     -0.02302829,     0.89835067]])
+    tvec_5 = np.array([[4.43641198],
+                       [0.67177428],
+                       [16.24069227]])
+    
+    objectPoints = np.array([   [3,3,-4],
+                                [1,1,0],
+                                [1,5,0],
+                                [5,5,0],
+                                [5,1,0]],dtype=np.float) #pyramid 3D coordinates
+    
 
-    images = glob.glob('*.bmp')
-    for fname in images:
-        print(fname)
-        img = cv2.imread(fname)
-        gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-        # 找到棋盘格角点
-        ret, corners = cv2.findChessboardCorners(gray, (w,h),None)
-        # 如果找到足够点对，将其存储起来
-        if ret == True:
-            cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
-            objpoints.append(objp)
-            imgpoints.append(corners)
-            # 将角点在图像上显示
-            cv2.drawChessboardCorners(img, (w,h), corners, ret)
-            cv2.imshow('findCorners',img)
-            cv2.waitKey(3000)
-    cv2.destroyAllWindows()
-    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+    imagePoints_1, jacobian1 = cv2.projectPoints(objectPoints, rvec_1, tvec_1, camera_mtx, distortion)
+    img_1 = cv2.imread('1.bmp')
+    cv2.line(img_1, (int(imagePoints_1[0][0][0]), int(imagePoints_1[0][0][1])), (int(imagePoints_1[1][0][0]), int(imagePoints_1[1][0][1])), (0, 0, 255), 10)
+    cv2.line(img_1, (int(imagePoints_1[0][0][0]), int(imagePoints_1[0][0][1])), (int(imagePoints_1[2][0][0]), int(imagePoints_1[2][0][1])), (0, 0, 255), 10)
+    cv2.line(img_1, (int(imagePoints_1[0][0][0]), int(imagePoints_1[0][0][1])), (int(imagePoints_1[3][0][0]), int(imagePoints_1[3][0][1])), (0, 0, 255), 10)
+    cv2.line(img_1, (int(imagePoints_1[0][0][0]), int(imagePoints_1[0][0][1])), (int(imagePoints_1[4][0][0]), int(imagePoints_1[4][0][1])), (0, 0, 255), 10)
+    cv2.line(img_1, (int(imagePoints_1[1][0][0]), int(imagePoints_1[1][0][1])), (int(imagePoints_1[2][0][0]), int(imagePoints_1[2][0][1])), (0, 0, 255), 10)
+    cv2.line(img_1, (int(imagePoints_1[1][0][0]), int(imagePoints_1[1][0][1])), (int(imagePoints_1[4][0][0]), int(imagePoints_1[4][0][1])), (0, 0, 255), 10)
+    cv2.line(img_1,(int(imagePoints_1[2][0][0]), int(imagePoints_1[2][0][1])), (int(imagePoints_1[3][0][0]), int(imagePoints_1[3][0][1])), (0, 0, 255), 10)
+    cv2.line(img_1,(int(imagePoints_1[3][0][0]), int(imagePoints_1[3][0][1])), (int(imagePoints_1[4][0][0]), int(imagePoints_1[4][0][1])), (0, 0, 255), 10)
+
+    imagePoints_2, jacobian2 = cv2.projectPoints(objectPoints, rvec_2, tvec_2, camera_mtx, distortion)
+    img_2 = cv2.imread('2.bmp')
+    cv2.line(img_2, (int(imagePoints_2[0][0][0]), int(imagePoints_2[0][0][1])), (int(imagePoints_2[1][0][0]), int(imagePoints_2[1][0][1])), (0, 0, 255), 10)
+    cv2.line(img_2, (int(imagePoints_2[0][0][0]), int(imagePoints_2[0][0][1])), (int(imagePoints_2[2][0][0]), int(imagePoints_2[2][0][1])), (0, 0, 255), 10)
+    cv2.line(img_2, (int(imagePoints_2[0][0][0]), int(imagePoints_2[0][0][1])), (int(imagePoints_2[3][0][0]), int(imagePoints_2[3][0][1])), (0, 0, 255), 10)
+    cv2.line(img_2, (int(imagePoints_2[0][0][0]), int(imagePoints_2[0][0][1])), (int(imagePoints_2[4][0][0]), int(imagePoints_2[4][0][1])), (0, 0, 255), 10)
+    cv2.line(img_2, (int(imagePoints_2[1][0][0]), int(imagePoints_2[1][0][1])), (int(imagePoints_2[2][0][0]), int(imagePoints_2[2][0][1])), (0, 0, 255), 10)
+    cv2.line(img_2, (int(imagePoints_2[1][0][0]), int(imagePoints_2[1][0][1])), (int(imagePoints_2[4][0][0]), int(imagePoints_2[4][0][1])), (0, 0, 255), 10)
+    cv2.line(img_2,(int(imagePoints_2[2][0][0]), int(imagePoints_2[2][0][1])), (int(imagePoints_2[3][0][0]), int(imagePoints_2[3][0][1])), (0, 0, 255), 10)
+    cv2.line(img_2,(int(imagePoints_2[3][0][0]), int(imagePoints_2[3][0][1])), (int(imagePoints_2[4][0][0]), int(imagePoints_2[4][0][1])), (0, 0, 255), 10)
+
+    imagePoints_3, jacobian3 = cv2.projectPoints(objectPoints, rvec_3, tvec_3, camera_mtx, distortion)
+    img_3 = cv2.imread('3.bmp')
+    cv2.line(img_3, (int(imagePoints_3[0][0][0]), int(imagePoints_3[0][0][1])), (int(imagePoints_3[1][0][0]), int(imagePoints_3[1][0][1])), (0, 0, 255), 10)
+    cv2.line(img_3, (int(imagePoints_3[0][0][0]), int(imagePoints_3[0][0][1])), (int(imagePoints_3[2][0][0]), int(imagePoints_3[2][0][1])), (0, 0, 255), 10)
+    cv2.line(img_3, (int(imagePoints_3[0][0][0]), int(imagePoints_3[0][0][1])), (int(imagePoints_3[3][0][0]), int(imagePoints_3[3][0][1])), (0, 0, 255), 10)
+    cv2.line(img_3, (int(imagePoints_3[0][0][0]), int(imagePoints_3[0][0][1])), (int(imagePoints_3[4][0][0]), int(imagePoints_3[4][0][1])), (0, 0, 255), 10)
+    cv2.line(img_3, (int(imagePoints_3[1][0][0]), int(imagePoints_3[1][0][1])), (int(imagePoints_3[2][0][0]), int(imagePoints_3[2][0][1])), (0, 0, 255), 10)
+    cv2.line(img_3, (int(imagePoints_3[1][0][0]), int(imagePoints_3[1][0][1])), (int(imagePoints_3[4][0][0]), int(imagePoints_3[4][0][1])), (0, 0, 255), 10)
+    cv2.line(img_3,(int(imagePoints_3[2][0][0]), int(imagePoints_3[2][0][1])), (int(imagePoints_3[3][0][0]), int(imagePoints_3[3][0][1])), (0, 0, 255), 10)
+    cv2.line(img_3,(int(imagePoints_3[3][0][0]), int(imagePoints_3[3][0][1])), (int(imagePoints_3[4][0][0]), int(imagePoints_3[4][0][1])), (0, 0, 255), 10)
+    
+    imagePoints_4, jacobian4 = cv2.projectPoints(objectPoints, rvec_4, tvec_4, camera_mtx, distortion)
+    img_4 = cv2.imread('4.bmp')
+    cv2.line(img_4, (int(imagePoints_4[0][0][0]), int(imagePoints_4[0][0][1])), (int(imagePoints_4[1][0][0]), int(imagePoints_4[1][0][1])), (0, 0, 255), 10)
+    cv2.line(img_4, (int(imagePoints_4[0][0][0]), int(imagePoints_4[0][0][1])), (int(imagePoints_4[2][0][0]), int(imagePoints_4[2][0][1])), (0, 0, 255), 10)
+    cv2.line(img_4, (int(imagePoints_4[0][0][0]), int(imagePoints_4[0][0][1])), (int(imagePoints_4[3][0][0]), int(imagePoints_4[3][0][1])), (0, 0, 255), 10)
+    cv2.line(img_4, (int(imagePoints_4[0][0][0]), int(imagePoints_4[0][0][1])), (int(imagePoints_4[4][0][0]), int(imagePoints_4[4][0][1])), (0, 0, 255), 10)
+    cv2.line(img_4, (int(imagePoints_4[1][0][0]), int(imagePoints_4[1][0][1])), (int(imagePoints_4[2][0][0]), int(imagePoints_4[2][0][1])), (0, 0, 255), 10)
+    cv2.line(img_4, (int(imagePoints_4[1][0][0]), int(imagePoints_4[1][0][1])), (int(imagePoints_4[4][0][0]), int(imagePoints_4[4][0][1])), (0, 0, 255), 10)
+    cv2.line(img_4,(int(imagePoints_4[2][0][0]), int(imagePoints_4[2][0][1])), (int(imagePoints_4[3][0][0]), int(imagePoints_4[3][0][1])), (0, 0, 255), 10)
+    cv2.line(img_4,(int(imagePoints_4[3][0][0]), int(imagePoints_4[3][0][1])), (int(imagePoints_4[4][0][0]), int(imagePoints_4[4][0][1])), (0, 0, 255), 10)
+
+    imagePoints_5, jacobian5 = cv2.projectPoints(objectPoints, rvec_5, tvec_5, camera_mtx, distortion)
+    img_5 = cv2.imread('5.bmp')
+    cv2.line(img_5, (int(imagePoints_5[0][0][0]), int(imagePoints_5[0][0][1])), (int(imagePoints_5[1][0][0]), int(imagePoints_5[1][0][1])), (0, 0, 255), 10)
+    cv2.line(img_5, (int(imagePoints_5[0][0][0]), int(imagePoints_5[0][0][1])), (int(imagePoints_5[2][0][0]), int(imagePoints_5[2][0][1])), (0, 0, 255), 10)
+    cv2.line(img_5, (int(imagePoints_5[0][0][0]), int(imagePoints_5[0][0][1])), (int(imagePoints_5[3][0][0]), int(imagePoints_5[3][0][1])), (0, 0, 255), 10)
+    cv2.line(img_5, (int(imagePoints_5[0][0][0]), int(imagePoints_5[0][0][1])), (int(imagePoints_5[4][0][0]), int(imagePoints_5[4][0][1])), (0, 0, 255), 10)
+    cv2.line(img_5, (int(imagePoints_5[1][0][0]), int(imagePoints_5[1][0][1])), (int(imagePoints_5[2][0][0]), int(imagePoints_5[2][0][1])), (0, 0, 255), 10)
+    cv2.line(img_5, (int(imagePoints_5[1][0][0]), int(imagePoints_5[1][0][1])), (int(imagePoints_5[4][0][0]), int(imagePoints_5[4][0][1])), (0, 0, 255), 10)
+    cv2.line(img_5,(int(imagePoints_5[2][0][0]), int(imagePoints_5[2][0][1])), (int(imagePoints_5[3][0][0]), int(imagePoints_5[3][0][1])), (0, 0, 255), 10)
+    cv2.line(img_5,(int(imagePoints_5[3][0][0]), int(imagePoints_5[3][0][1])), (int(imagePoints_5[4][0][0]), int(imagePoints_5[4][0][1])), (0, 0, 255), 10)
+
+    cv2.namedWindow('window', cv2.WINDOW_NORMAL)
+    cnt = 1
+    num = 1
+    while True:
+        if num == 11:
+            cv2.destroyAllWindows()
+            break
+
+        if cnt == 1:
+            cv2.imshow('window', img_1)
+            cnt = cnt + 1
+            num = num + 1
+            cv2.waitKey(500)
+
+        if cnt == 2:
+            cv2.imshow('window', img_2)
+            cnt = cnt + 1
+            num = num + 1
+            cv2.waitKey(500)
+
+        if cnt == 3:
+            cv2.imshow('window', img_3)
+            cnt = cnt + 1
+            num = num + 1
+            cv2.waitKey(500)
+
+        if cnt == 4:
+            cv2.imshow('window', img_4)
+            cnt = cnt + 1
+            num = num + 1
+            cv2.waitKey(500)
+
+        if cnt == 5:
+            cv2.imshow('window', img_5)
+            cnt = 1
+            num = num + 1
+            cv2.waitKey(500)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
